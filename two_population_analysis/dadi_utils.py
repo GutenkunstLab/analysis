@@ -8,14 +8,16 @@ import os
 import matplotlib.pyplot as plt
 import random
 
-def msprime_to_dadi_simulation_OutOfAfrica(path, seed, chrom, sample_size=20):
+def msprime_to_dadi_simulation(path, seed, org, chrom, sample_size=20):
 	'''
 	Generate however many different SFS with msprime and convert+save them into SFS for dadi to use.
 	'''
 	#For testing
 	# print(path, seed, chrom, sample_size)
-	chrom = homo_sapiens.genome.chromosomes[chrom]
-	model = homo_sapiens.GutenkunstThreePopOutOfAfrica()
+	# chrom = homo_sapiens.genome.chromosomes[chrom]
+	# model = homo_sapiens.GutenkunstThreePopOutOfAfrica()
+	chrom = getattr(stdpopsim, '_'.join(org.split('_')[:-1])).genome.chromosomes[chrom]
+	model = getattr(getattr(stdpopsim, '_'.join(org.split('_')[:-1])), org.split('_')[-1:][0])
 
 	samples_pops_joint = [msprime.Sample(population=0, time=0)] * sample_size + [msprime.Sample(population=1, time=0)] * sample_size
 	ts_pops_joint = msprime.simulate(
