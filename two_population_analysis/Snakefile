@@ -47,7 +47,7 @@ rule simulate_to_dadi_sfs:
         "simulated_data/{org_models}/msprime_joint_sfs_{sim_seeds}_{chrms}.fs"
     # TODO get simulation parameters from stdpopsim, so we can share them easily 
     # with anlysis code below?
-    threads: 2
+    threads: 4
     run: dadi_utils.msprime_to_dadi_simulation(output[0], wildcards.sim_seeds, wildcards.org_models, wildcards.chrms)
 
 sfs_files = expand("simulated_data/{org_models}/msprime_joint_sfs_{sim_seeds}_{chrms}.fs",
@@ -55,10 +55,10 @@ sfs_files = expand("simulated_data/{org_models}/msprime_joint_sfs_{sim_seeds}_{c
 print(sfs_files)
 rule compare_msprime_sfs_to_OutOfAfrica_model:
     input:
-        [s for s in sfs_files if 'GutenkunstThreePopOutOfAfrica' in sfs_files]
+        [fid for fid in sfs_files if 'GutenkunstThreePopOutOfAfrica' in fid]
     output:
         "results_comparison/homo_sapiens_GutenkunstThreePopOutOfAfrica/compare_dadi_to_msprime_joint_sfs_resid_range_50.pdf"
-    run: dadi_utils.compare_msprime_dadi_OutOfAfrica([s for s in sfs_files if 'GutenkunstThreePopOutOfAfrica' in sfs_files],output[0])
+    run: dadi_utils.compare_msprime_dadi_OutOfAfrica(input,output[0])
 
 rule fit_dadi_model_to_msprime_sfs:
     input:
@@ -66,7 +66,7 @@ rule fit_dadi_model_to_msprime_sfs:
     output:
         "results_fits/{org_models}/{demo_models}/model_fit_{fit_seeds}.pdf",
         "results_fits/{org_models}/{demo_models}/model_params_{fit_seeds}.txt"
-    threads: 4
+    threads: 8
     run: dadi_utils.fit_dadi_model(sfs_files,output[0],output[1], wildcards.demo_models, wildcards.fit_seeds)
 
 

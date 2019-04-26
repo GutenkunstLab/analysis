@@ -2,7 +2,7 @@
 import allel
 import numpy as np
 import msprime
-from stdpopsim import homo_sapiens
+import stdpopsim  
 import dadi
 import os
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ def msprime_to_dadi_simulation(path, seed, org, chrom, sample_size=20):
 	# chrom = homo_sapiens.genome.chromosomes[chrom]
 	# model = homo_sapiens.GutenkunstThreePopOutOfAfrica()
 	chrom = getattr(stdpopsim, '_'.join(org.split('_')[:-1])).genome.chromosomes[chrom]
-	model = getattr(getattr(stdpopsim, '_'.join(org.split('_')[:-1])), org.split('_')[-1:][0])
+	model = getattr(getattr(stdpopsim, '_'.join(org.split('_')[:-1])), org.split('_')[-1:][0])()
 
 	samples_pops_joint = [msprime.Sample(population=0, time=0)] * sample_size + [msprime.Sample(population=1, time=0)] * sample_size
 	ts_pops_joint = msprime.simulate(
