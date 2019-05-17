@@ -91,11 +91,16 @@ def compare_msprime_dadi_OutOfAfrica(input_fids, output_path):
 	fig.savefig(output_path)
 
 
-def fit_dadi_model(sfs_files,output_pdf_name,output_text_name,demo_model,fit_seed):
+def fit_dadi_model(sfs_files,output_pdf_name,output_text_name,demo_model,sim_seed,fit_seed):
 	np.random.seed(int(fit_seed))
 
 	msprime_joint_sfs = dadi.Spectrum([[0]*21]*21) 
 
+	#results_fits/homo_sapiens_GutenkunstThreePopOutOfAfrica/split_mig/model_params_561383553.txt
+	msprime_model = output_pdf_name.split('/')[1]
+	sfs_files = [fid for fid in sfs_files if msprime_model in fid]
+	sfs_files = [fid for fid in sfs_files if str(sim_seed) in fid]
+	print(sfs_files)
 	for fid in sfs_files:
 		msprime_joint_sfs += dadi.Spectrum.from_file(fid)
 
@@ -130,7 +135,7 @@ def fit_dadi_model(sfs_files,output_pdf_name,output_text_name,demo_model,fit_see
 		fixed = [None]*len(params)
 
 
-	print('staring_optimization',fit_seed)
+	print('staring_optimization',sim_seed,fit_seed)
 
 	p_guess = dadi.Misc.perturb_params(params, lower_bound=lower_bound, upper_bound=upper_bound)
 
@@ -145,15 +150,18 @@ def fit_dadi_model(sfs_files,output_pdf_name,output_text_name,demo_model,fit_see
 	model = extrap_function(popt, ns, pts_l)
 
 	ll = dadi.Inference.ll_multinom(model,msprime_joint_sfs)
-	print('ll (seed '+str(fit_seed)+'):' + str(ll))
+	print('ll (data seed '+str(sim_seed)+', fit seed '+str(fit_seed)+'):' + str(ll))
 
 	theta0 = dadi.Inference.optimal_sfs_scaling(model,msprime_joint_sfs)
-	print('theta0 (seed '+str(fit_seed)+'):'+str(theta0))
+	print('theta0 (data seed '+str(sim_seed)+', fit seed '+str(fit_seed)+'):' + str(theta0))
 
 
 	fid = open(output_text_name,'w')
 	fid.write('ll: ' + str(ll) + '\ntheta0: ' + str(theta0) + '\nParams:\n['+','.join([str(ele) for ele in popt])+']')
 	fid.close()
+
+	# fid = open(output_pdf_name,'w')
+	# fid.close()
 
 	import matplotlib.pyplot as plt
 	fig = plt.figure(219033)
