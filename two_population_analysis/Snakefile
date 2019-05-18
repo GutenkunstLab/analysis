@@ -7,16 +7,24 @@ import stdpopsim
 import dadi_utils
 
 genetic_map_downloaded_flag= ".genetic_map_downloaded"
+hpc_check = os.environ.get('PBS_O_WORKDIR')
 
 #General settings
 seed = 12345
 np.random.seed(seed)
+if hpc_check == None:
+    sim_reps = 2
+    seed_array = np.random.random_integers(1,2**31,sim_reps)
 
-sim_reps = 2
-seed_array = np.random.random_integers(1,2**31,sim_reps)
+    fit_runs = 2
+    dadi_seed_array = np.random.randint(0, 4294967295 + 1, fit_runs)
 
-fit_runs = 2
-dadi_seed_array = np.random.randint(0, 4294967295 + 1, fit_runs)
+else:
+    sim_reps = 5
+    seed_array = np.random.random_integers(1,2**31,sim_reps)
+
+    fit_runs = 50
+    dadi_seed_array = np.random.randint(0, 4294967295 + 1, fit_runs)
 
 #dadi models to fit to msprime simulated data
 demo_models_list = ['IM','split_mig']#,'IM_pre']
