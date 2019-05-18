@@ -93,7 +93,7 @@ def compare_msprime_dadi_OutOfAfrica(input_fids, output_path):
 
 def fit_dadi_model(sfs_files,output_pdf_name,output_text_name,demo_model,sim_seed,fit_seed):
 	np.random.seed(int(fit_seed))
-
+	hpc_check = os.environ.get('PBS_O_WORKDIR')
 	msprime_joint_sfs = dadi.Spectrum([[0]*21]*21) 
 
 	#results_fits/homo_sapiens_GutenkunstThreePopOutOfAfrica/split_mig/model_params_561383553.txt
@@ -138,11 +138,16 @@ def fit_dadi_model(sfs_files,output_pdf_name,output_text_name,demo_model,sim_see
 	print('staring_optimization',sim_seed,fit_seed)
 
 	p_guess = dadi.Misc.perturb_params(params, lower_bound=lower_bound, upper_bound=upper_bound)
-
-	popt = dadi.Inference.optimize(p_guess, msprime_joint_sfs, extrap_function, pts_l, multinom=True, verbose = True, 
-					lower_bound=lower_bound, upper_bound=upper_bound,
-					fixed_params=fixed,
-					maxiter=2)
+	if hpc_check == None:
+		popt = dadi.Inference.optimize(p_guess, msprime_joint_sfs, extrap_function, pts_l, multinom=True, verbose = True, 
+						lower_bound=lower_bound, upper_bound=upper_bound,
+						fixed_params=fixed,
+						maxiter=2)
+	else:
+		popt = dadi.Inference.optimize(p_guess, msprime_joint_sfs, extrap_function, pts_l, multinom=True, verbose = True, 
+						lower_bound=lower_bound, upper_bound=upper_bound,
+						fixed_params=fixed,
+						maxiter=100)
 
 	# #For debugging
 	# popt = p_guess
